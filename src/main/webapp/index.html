@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blinkit Everything delivered in minutes</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo-section">
+                <h1 class="logo">blink<span class="logo-green">it</span></h1>
+            </div>
+
+            <div class="location-box">
+                <div class="location-title">Delivery in 8 minutes</div>
+                <div class="location-subtitle">Home - Bangalore, KA <i class="fas fa-caret-down"></i></div>
+            </div>
+
+            <div class="search-bar">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" placeholder='Search "milk"'>
+            </div>
+
+            <div class="header-actions">
+                <button class="login-btn">Login</button>
+                <button class="cart-btn" onclick="toggleCart()">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-text">My Cart</span>
+                    <span id="header-cart-count" class="cart-count hidden">0 items</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-banner">
+                <div class="banner-content">
+                    <h2>Pharmacy at your doorstep!</h2>
+                    <p>Get medicines delivered in minutes.</p>
+                    <button class="shop-now-btn">Shop Now</button>
+                </div>
+                <div class="banner-image">
+                    <!-- Placeholder for hero image -->
+                    <div class="img-placeholder">💊</div>
+                </div>
+            </div>
+            <div class="hero-banner secondary">
+                <div class="banner-content">
+                    <h2>Fresh Vegetables</h2>
+                    <p>Farm fresh directly to home.</p>
+                </div>
+                <div class="banner-image">
+                    <div class="img-placeholder">🥦</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Categories Grid -->
+        <section class="categories-section">
+            <div class="section-header">
+                <h3>Shop by Category</h3>
+            </div>
+            <div id="category-grid" class="category-grid">
+                <!-- Categories will be injected here by JS -->
+            </div>
+        </section>
+
+        <!-- Product Rows -->
+        <div id="product-feeds">
+            <!-- Product rows (Snacks, Dairy, etc.) injected here -->
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-col">
+                <h4>blinkit</h4>
+                <p>India's Last Minute App</p>
+            </div>
+            <div class="footer-col">
+                <h4>Useful Links</h4>
+                <ul>
+                    <li>About Us</li>
+                    <li>Partner with us</li>
+                    <li>Blog</li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Categories</h4>
+                <ul>
+                    <li>Vegetables & Fruits</li>
+                    <li>Cold Drinks & Juices</li>
+                    <li>Bakery & Biscuits</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2024 Blinkit Commerce Private Limited (formerly Grofers)</p>
+        </div>
+    </footer>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-overlay" onclick="toggleCart()"></div>
+    <div class="cart-sidebar" id="cart-sidebar">
+        <div class="cart-header">
+            <h3>My Cart</h3>
+            <button class="close-cart" onclick="toggleCart()"><i class="fas fa-times"></i></button>
+        </div>
+
+        <div class="cart-items" id="cart-items-container">
+            <!-- Cart items injected here -->
+            <div class="empty-cart-msg">
+                <img src="https://cdn.grofers.com/assets/ui/empty_states/emp_empty_cart.png" alt="Empty Cart"
+                    style="width: 150px; opacity: 0.8;">
+                <p>You don't have any items in your cart</p>
+                <button class="start-shopping-btn" onclick="toggleCart()">Start Shopping</button>
+            </div>
+        </div>
+
+        <div class="cart-footer hidden" id="cart-footer">
+            <div class="bill-details">
+                <div class="bill-row">
+                    <span>Item Total</span>
+                    <span id="bill-item-total">₹0</span>
+                </div>
+                <div class="bill-row">
+                    <span>Delivery Charge</span>
+                    <span class="free-text">FREE</span>
+                </div>
+                <div class="bill-row grand-total">
+                    <span>Grand Total</span>
+                    <span id="bill-grand-total">₹0</span>
+                </div>
+            </div>
+            <button class="checkout-btn">
+                <div class="checkout-info">
+                    <span id="btn-total">₹0</span>
+                    <span class="btn-subtext">TOTAL</span>
+                </div>
+                <span class="proceed-text">Proceed <i class="fas fa-chevron-right"></i></span>
+            </button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
