@@ -4,149 +4,85 @@ pipeline {
     tools {
         maven 'maven'
     }
+
+    environment {
+        IMAGE_NAME = "shreyap2/blinkit-war-jenkins"
+        IMAGE_TAG = "latest"
+        CONTAINER_NAME = "blinkit-container"
+    }
+
     stages {
-        stage('Build') {
+
+        stage('Checkout') {
             steps {
-                echo "Building the project..."
+                echo "Cloning project..."
+                git branch: 'main',
+                    url: 'https://github.com/shreyaprabhu28/blinkit_war_jenkins.git'
+            }
+        }
+
+        stage('Build WAR') {
+            steps {
+                echo "Building WAR..."
                 sh 'mvn clean package'
             }
-            post {
-                success {
-                    echo 'Build stage completed successfully.'
-                }
-                failure {
-                    echo 'Build stage failed.'
-                }
-            }
         }
-        stage('Docker Build the Image') {
+
+        stage('Build Docker Image') {
             steps {
-                echo "Building the Docker image..."
-                sh 'sudo docker build -t snapchat-sak-cicd-docker .'
-            }
-            post {
-                success {
-                    echo 'Docker image built successfully.'
-                }
-                failure {
-                    echo 'Docker image build failed.'
-                }
+                echo "Building Docker Image..."
+                sh 'sudo docker build -t $IMAGE_NAME:$IMAGE_TAG .'
             }
         }
-        stage('Docker Login to DockerHub') {
+
+        stage('Docker Login') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-cred-id',  
-                    usernameVariable: 'USER',
-                    passwordVariable: 'PASS'
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
                 )]) {
                     sh '''
-                        echo "$PASS" | sudo docker login -u "$USER" --password-stdin
+                    echo "$DOCKER_PASS" | sudo docker login -u "$DOCKER_USER" --password-stdin
                     '''
                 }
             }
         }
-        stage('Docker Tag the Image') {
+
+        stage('Push Docker Image') {
             steps {
-                echo "Tagging the Docker image..."
-                sh 'sudo docker tag snapchat-sak-cicd-docker sakit333/snapchat-sak-cicd-docker:latest'
-            }
-            post {
-                success {
-                    echo 'Docker image tagged successfully.'
-                }
-                failure {
-                    echo 'Failed to tag Docker image.'
-                }
+                sh 'sudo docker push $IMAGE_NAME:$IMAGE_TAG'
             }
         }
-        stage('Docker Push the Image') {
+
+        stage('Deploy Container') {
             steps {
-                echo "Pushing the Docker image to DockerHub..."
-                sh 'sudo docker push sakit333/snapchat-sak-cicd-docker:latest'
-            }
-            post {
-                success {
-                    echo 'Docker image pushed to DockerHub successfully.'
-                }
-                failure {
-                    echo 'Failed to push Docker image to DockerHub.'
-                }
-            }
-        }
-        stage('Cleanup Local Docker Images') {
-            steps {
-                echo "Cleaning up local Docker images..."
                 sh '''
-                    sudo docker rmi sakit333/snapchat-sak-cicd-docker:latest
-                    sudo docker rmi snapchat-sak-cicd-docker
+                sudo docker stop $CONTAINER_NAME || true
+                sudo docker rm $CONTAINER_NAME || true
+
+                sudo docker run -d \
+                --name $CONTAINER_NAME \
+                -p 8084:8080 \
+                $IMAGE_NAME:$IMAGE_TAG
                 '''
             }
-            post {
-                success {
-                    echo 'Local Docker images cleaned up successfully.'
-                }
-                failure {
-                    echo 'Failed to clean up local Docker images.'
-                }
-            }
         }
-        stage('Done') {
+
+        stage('Docker Logout') {
             steps {
-                echo "Pipeline execution completed."
-            }
-        }
-        stage('Docker Logout from DockerHub') {
-            steps {
-                echo "Logging out from DockerHub..."
                 sh 'sudo docker logout'
             }
         }
-        stage('Docker container run') {
-            steps {
-                script {
-                    echo "🧩 Checking if the Docker container is already running..."
-                    // Check if container exists
-                    def containerExists = sh(
-                        script: "sudo docker ps -a --format '{{.Names}}' | grep -w snapchat-container || true",
-                        returnStdout: true
-                    ).trim()
-                    if (containerExists) {
-                        echo "⚠️ Container 'snapchat-container' already exists."
-                        // Ask user for confirmation
-                        def userChoice = input(
-                            id: 'ContainerRestart',
-                            message: 'Container already running. Do you want to stop and redeploy?',
-                            parameters: [choice(choices: ['Yes', 'No'], description: 'Choose action', name: 'Confirm')]
-                        )
-                        if (userChoice == 'Yes') {
-                            echo "🛑 Stopping and removing old container..."
-                            sh '''
-                                sudo docker stop snapchat-container || true
-                                sudo docker rm snapchat-container || true
-                                echo "🚀 Starting new container..."
-                                sudo docker run -d -p 8084:8080 --name snapchat-container sakit333/snapchat-sak-cicd-docker:latest
-                            '''
-                        } else {
-                            echo "⏩ Skipping container restart as per user choice."
-                        }
-                    } else {
-                        echo "🚀 No existing container found — starting new one..."
-                        sh 'sudo docker run -d -p 8084:8080 --name snapchat-container sakit333/snapchat-sak-cicd-docker:latest'
-                    }
-                }
-            }
-        }
-    }  
+
+    }
+
     post {
-        always {
-            echo 'This will always run after the stages are complete.'
-        }
         success {
-            echo 'This will run only if the pipeline succeeds.'
+            echo 'Pipeline completed successfully.'
         }
         failure {
-            echo 'This will run only if the pipeline fails.'
+            echo 'Pipeline failed.'
         }
     }
 }
