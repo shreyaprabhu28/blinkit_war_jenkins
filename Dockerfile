@@ -1,31 +1,11 @@
-# ----------- STAGE 1 : BUILD -----------
-FROM maven:3.9.9-eclipse-temurin-17 AS builder
+FROM tomcat:9-jdk17
 
-WORKDIR /app
+LABEL maintainer="shreyaprabhu28"
 
-# Copy pom.xml first for dependency caching
-COPY pom.xml .
+RUN rm -rf /usr/local/tomcat/webapps/ROOT
 
-# Download dependencies
-RUN mvn dependency:go-offline
+COPY target/blinkit.war /usr/local/tomcat/webapps/ROOT.war
 
-# Copy source code
-COPY src ./src
-
-# Build WAR file
-RUN mvn clean package -DskipTests
-
-# ----------- STAGE 2 : RUN -----------
-FROM tomcat:10.1-jdk17
-
-# Remove default Tomcat applications
-RUN rm -rf /usr/local/tomcat/webapps/*
-
-# Copy generated WAR as ROOT.war
-COPY --from=builder /app/target/*.war /usr/local/tomcat/webapps/ROOT.war
-
-# Expose Tomcat port
 EXPOSE 8080
 
-# Start Tomcat
-CMD ["catalina.sh", "run"]
+CMD ["catalina.sh","run"]
